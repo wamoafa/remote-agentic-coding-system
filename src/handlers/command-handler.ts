@@ -93,6 +93,10 @@ Codebase:
   /setcwd <path> - Set directory
   Note: Codebases use full paths (e.g., /workspace/repo-name)
 
+Instructions:
+  /set-instructions <text> - Set instructions prepended before every AI request
+  /clear-instructions - Remove custom instructions
+
 Session:
   /status - Show state
   /reset - Clear session
@@ -115,6 +119,13 @@ Session:
       }
 
       msg += `\n\nCurrent Working Directory: ${conversation.cwd || 'Not set'}`;
+
+      if (conversation.custom_instructions) {
+        const preview = conversation.custom_instructions.length > 100
+          ? conversation.custom_instructions.substring(0, 100) + '...'
+          : conversation.custom_instructions;
+        msg += `\nCustom Instructions: ${preview}`;
+      }
 
       const session = await sessionDb.getActiveSession(conversation.id);
       if (session?.id) {
@@ -423,6 +434,28 @@ Session:
       return {
         success: true,
         message: 'No active session to reset.',
+      };
+    }
+
+    case 'set-instructions': {
+      if (args.length === 0) {
+        return { success: false, message: 'Usage: /set-instructions <text>' };
+      }
+      const instructions = args.join(' ');
+      await db.updateConversation(conversation.id, { custom_instructions: instructions });
+      return {
+        success: true,
+        message: `Custom instructions saved. They will be prepended before every AI request.\n\n"${instructions}"`,
+        modified: true,
+      };
+    }
+
+    case 'clear-instructions': {
+      await db.updateConversation(conversation.id, { custom_instructions: null });
+      return {
+        success: true,
+        message: 'Custom instructions cleared.',
+        modified: true,
       };
     }
 
