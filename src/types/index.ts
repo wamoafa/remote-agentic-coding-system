@@ -9,6 +9,7 @@ export interface Conversation {
   codebase_id: string | null;
   cwd: string | null;
   ai_assistant_type: string;
+  custom_instructions: string | null;
   created_at: Date;
   updated_at: Date;
 }

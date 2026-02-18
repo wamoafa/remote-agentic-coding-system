@@ -111,6 +111,12 @@ export async function handleMessage(
 
     console.log('[Orchestrator] Starting AI conversation');
 
+    // Prepend custom instructions if set for this conversation
+    if (conversation.custom_instructions) {
+      promptToSend = conversation.custom_instructions + '\n\n---\n\n' + promptToSend;
+      console.log('[Orchestrator] Prepended custom instructions to prompt');
+    }
+
     // Dynamically get the appropriate AI client based on conversation's assistant type
     const aiClient = getAssistantClient(conversation.ai_assistant_type);
     console.log(`[Orchestrator] Using ${conversation.ai_assistant_type} assistant`);
